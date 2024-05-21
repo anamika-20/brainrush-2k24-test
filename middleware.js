@@ -5,9 +5,6 @@ export { default } from "next-auth/middleware";
 export async function middleware(req) {
   try {
     const token = await getToken({ req });
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
     const reqHeader = new Headers(req.headers);
     reqHeader.set("Authorization", token?.email);
     return NextResponse.next({
