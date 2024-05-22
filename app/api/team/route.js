@@ -10,7 +10,9 @@ export async function GET(req) {
   try {
     await connectToDatabase();
     const email = req.headers.get("Authorization");
+    console.log(req.headers);
     const user = await User.findOne({ email: email });
+    console.log(user);
     const teamDetails = await Team.findOne({
       $or: [{ leader: user._id }, { members: user._id }],
     }).populate(["leader", "members"]);

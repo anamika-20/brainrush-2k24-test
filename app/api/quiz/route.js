@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import User from "@models/user";
 import Team from "@models/team";
-import ConfirmationRequest from "@models/confirmationRequest";
 import { connectToDatabase } from "@utils/db";
 import QuizTitle from "@models/quizTitle";
 import Question from "@models/question";
+import Quiz from "@models/quiz";
 
 //get all quizzes
 export async function GET(req) {
@@ -21,6 +21,13 @@ export async function GET(req) {
         message: "Team not found",
       });
     }
+    const quiz = await Quiz.findOne({ team: teamDetails._id });
+    if (quiz?.quizStarted) {
+      return NextResponse.json(
+        { message: "Quiz already started" },
+        { status: 400 }
+      );
+    }
     const quizTitles = await QuizTitle.find({});
     return NextResponse.json({
       success: true,
@@ -36,8 +43,8 @@ export async function GET(req) {
   }
 }
 
-//create a new Team
-export async function POST(request) {
+//set quizzes to teams
+export async function PATCH(request) {
   try {
     await connectToDatabase();
     const email = request.headers.get("Authorization");
@@ -54,33 +61,32 @@ export async function POST(request) {
         message: "Team not found",
       });
     }
-    // if (teamDetails.members.length != 2) {
-    //   return NextResponse.json({
-    //     success: false,
-    //     message: "Team not complete",
-    //   });
-    // }
-
+    if (teamDetails.members.length != 2) {
+      return NextResponse.json({
+        success: false,
+        message: "Team not complete",
+      });
+    }
+    const quiz = await Quiz.findOne({ team: teamDetails._id });
+    if (quiz?.quizStarted) {
+      return NextResponse.json(
+        { message: "Quiz already started" },
+        { status: 400 }
+      );
+    }
     const { quizIds } = await request.json();
-    // console.log(request.body);
     if (!Array.isArray(quizIds) || quizIds.length !== 3) {
       return NextResponse.json(
         { message: "You must provide exactly 3 quiz IDs" },
         { status: 400 }
       );
     }
-
-    // Fetch the questions for the given quiz IDs
-    const questions = await Question.find({ title: { $in: quizIds } }).populate(
-      "title"
-    );
-    //   .populate("title", "title") // Populate the title field with the title from QuizTitle
-    //   .exec();
+    teamDetails.quizTopics = quizIds;
+    await teamDetails.save();
 
     return NextResponse.json({
       success: true,
-      message: "Questions retrieved Successfully",
-      questions,
+      message: "Quizzes Assigned",
     });
   } catch (error) {
     console.error("Error ", error);

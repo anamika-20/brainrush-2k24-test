@@ -27,6 +27,8 @@ export const config = {
     "/teams/(.*)",
     "/api/user",
     "/api/team",
+    "/api/quiz",
+    "/api/quiz/(.*)",
     "/api/team/(.*)",
     "/api/user/(.*)",
   ],
