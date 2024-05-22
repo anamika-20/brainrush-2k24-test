@@ -68,7 +68,7 @@ export async function PATCH(request) {
       });
     }
     const quiz = await Quiz.findOne({ team: teamDetails._id });
-    if (quiz?.quizStarted) {
+    if (quiz) {
       return NextResponse.json(
         { message: "Quiz already started" },
         { status: 400 }
