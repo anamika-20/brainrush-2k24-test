@@ -2,63 +2,43 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Button from "@components/Button";
+import axios from "axios";
 
 const page = () => {
   const time = 60;
   const [timeLeft, setTimeLeft] = useState(time); // 30 minutes in seconds
   const widthPercentage = 100 - (timeLeft / time) * 100;
-
+  const [loading, setLoading] = useState(false);
+  const [options, setOptions] = useState([]);
+  const getAllQuizzes = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/quiz`
+      );
+      console.log(data);
+      if (data.success) {
+        setOptions(data.quizzes);
+      } else {
+        alert(data?.message);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
+    getAllQuizzes();
+  }, [])
 
-    return () => clearInterval(timer);
-  }, []);
+  const [selectedTopics, setSelectedTopics] = useState([]);
 
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
-  const [clickedIndex, setClickedIndex] = useState(null);
-
-  const handleClick = (index) => {
-    setClickedIndex(index);
+  const handleSelectChange = (event) => {
+    console.log(event.target)
+    setSelectedTopics([...selectedTopics, event.target.value])
   };
 
-  const buttons = ["Paris", "Madrid", "Berlin", "Rome"];
-
-  const [selectedTopics, setSelectedTopics] = useState({
-    topic1: "",
-    topic2: "",
-    topic3: "",
-  });
-
-  const options = [
-    { value: "aptitude", label: "Aptitude" },
-    { value: "math", label: "Maths" },
-    { value: "movies", label: "Movies" },
-  ];
-
-  const handleSelectChange = (event, topic) => {
-    const newSelectedTopics = {
-      ...selectedTopics,
-      [topic]: event.target.value,
-    };
-    setSelectedTopics(newSelectedTopics);
-  };
-
-  const filterOptions = (exclude) =>
-    options.filter((option) => !exclude.includes(option.value));
+  const filterOptions = (exclude) => options.filter(option => !exclude.includes(option._id));
 
   return (
     <div className="flex flex-col mx-5 items-center justify-center ">
@@ -69,7 +49,6 @@ const page = () => {
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl text-background font-bold">Round-1</h1>
         </div>
-        {/* Options  */}
         <div>
           <div className="mb-6 h-1 w-full bg-bgGray ">
             <div className="h-1 bg-background " style={{ width: "100%" }}></div>
@@ -90,11 +69,11 @@ const page = () => {
             >
               <option value="">Select Topic 1</option>
               {filterOptions([
-                selectedTopics.topic2,
-                selectedTopics.topic3,
+                selectedTopics[1],
+                selectedTopics[2],
               ]).map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+                <option key={option?._id} value={option?._id}>
+                  {option?.title}
                 </option>
               ))}
             </select>
@@ -115,11 +94,11 @@ const page = () => {
             >
               <option value="">Select Topic 2</option>
               {filterOptions([
-                selectedTopics.topic1,
-                selectedTopics.topic3,
+                selectedTopics[0],
+                selectedTopics[2],
               ]).map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+                <option key={option?._id} value={option?._id}>
+                  {option?.title}
                 </option>
               ))}
             </select>
@@ -140,11 +119,11 @@ const page = () => {
             >
               <option value="">Select Topic 3</option>
               {filterOptions([
-                selectedTopics.topic1,
-                selectedTopics.topic2,
+                selectedTopics[0],
+                selectedTopics[1],
               ]).map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+                <option key={option?._id} value={option?._id}>
+                  {option?.title}
                 </option>
               ))}
             </select>
@@ -153,7 +132,7 @@ const page = () => {
         <button
           className="mt-15 flex items-center justify-center border border-background bg-background text-white py-2 px-4 rounded-md w-full mt-4 "
           onClick={() => {
-            router.push("/type1");
+            router.push("/questions");
           }}
         >
           SUBMIT
