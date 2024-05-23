@@ -9,7 +9,7 @@ const resultsSchema = new Schema({
     type: Number,
   },
   time: {
-    type: Date,
+    type: Number,
   },
 });
 const Results = (models && models.Results) || model("Results", resultsSchema);

@@ -14,21 +14,16 @@ const preahvihear = Preahvihear({
 const AllTeams = () => {
   const [teams, setTeams] = useState([]);
   const [pageNum, setPageNum] = useState(1);
-  const [limit, setLimit] = useState(0);
-  const [count, setCount] = useState(0);
-  const [search, setSearch] = useState("");
   const [notSelected, setNotSelected] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const getTeams = async () => {
     try {
       const { data } = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/team/all?search=${search}&page=${pageNum}&selected=${notSelected}`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/results`
       );
-      // const data = await response.json();
-      setTeams(data.teams);
-      setLimit(data.limit);
-      setCount(data.count);
+
+      setTeams(data.sortedResults);
     } catch (error) {
       console.log(error);
     } finally {
@@ -53,6 +48,9 @@ const AllTeams = () => {
                 <thead className="h-20 text-xs text-white uppercase border-2 border-white">
                   <tr>
                     <th scope="col" className="px-6 py-3 ">
+                      <span className={preahvihear.className}>Rank</span>
+                    </th>
+                    <th scope="col" className="px-6 py-3 ">
                       <span className={preahvihear.className}>Team Name</span>
                     </th>
                     <th scope="col" className="px-6 py-3">
@@ -66,55 +64,49 @@ const AllTeams = () => {
                     </th>
                   </tr>
                 </thead>
-                {/* <tbody>
-                  <tr className="border-b">
-                    <td
-                      scope="row"
-                      className="px-6 py-4 font-medium whitespace-nowrap"
-                    >
-                      abcd
-                    </td>
-                    <td className="px-6 py-4">abcd</td>
-                    <td className="px-6 py-4 ">abcd</td>
-                    <td className="px-6 py-4 ">abcd</td>
-                  </tr>
-                </tbody> */}
+
                 <tbody>
                   {teams &&
-                    teams.map((team) => (
+                    teams.map((team, index) => (
                       <tr className="border-b" key={team._id}>
                         <td
                           scope="row"
-                          className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                          className="px-6 py-4 font-medium text-white whitespace-nowrap"
                         >
                           <span className={preahvihear.className}>
-                            {team.teamName}
+                            {index + 1}
+                          </span>
+                        </td>
+                        <td
+                          scope="row"
+                          className="px-6 py-4 font-medium text-white whitespace-nowrap"
+                        >
+                          <span className={preahvihear.className}>
+                            {team?.teamName}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-gray-300">
-                          <span className="text-gray-900">
+                          <span className="text-white">
                             <span className={preahvihear.className}>
-                              {team.leader.name}
+                              {team?.teamLeader}
                             </span>
                           </span>
-                          <br />
-                          <span className={preahvihear.className}>
-                            {team.leader.email}
+                        </td>
+                        <td className="px-6 py-4 text-gray-300">
+                          <span className="text-white">
+                            <span className={preahvihear.className}>
+                              {team?.score}
+                            </span>
                           </span>
                         </td>
                         <td className="px-6 py-4 ">
-                          <span className="text-gray-900">
+                          <span className="text-white">
                             <span className={preahvihear.className}>
-                              {team?.teamMember?.name
-                                ? team.teamMember.name
-                                : "Not Selected"}
+                              {Math.floor(team?.time / 60) +
+                                ":" +
+                                (team?.time % 60 < 10 ? "0" : "") +
+                                (team?.time % 60)}
                             </span>
-                          </span>
-                          <br />
-                          <span className={preahvihear.className}>
-                            {team?.teamMember?.name
-                              ? team.teamMember.email
-                              : ""}
                           </span>
                         </td>
                       </tr>
