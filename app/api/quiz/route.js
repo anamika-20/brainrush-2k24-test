@@ -5,8 +5,10 @@ import { connectToDatabase } from "@utils/db";
 import QuizTitle from "@models/quizTitle";
 import Question from "@models/question";
 import Quiz from "@models/quiz";
+import EventDay from "@models/eventDay";
+import EventTimings from "@models/eventTimings";
 
-//get all quizzes
+//get all quiz topics
 export async function GET(req) {
   try {
     await connectToDatabase();
@@ -21,8 +23,31 @@ export async function GET(req) {
         message: "Team not found",
       });
     }
+    const eventDay = await EventDay.findOne({ team: teamDetails._id });
+    if (!eventDay || !eventDay.attendance) {
+      return NextResponse.json(
+        {
+          message: "You are not present in the event",
+        },
+        { status: 403 }
+      );
+    }
+    const event = await EventTimings.findOne({
+      name: "First Round",
+    });
+    const today = new Date();
+    const flag =
+      today >= new Date(event.startTime) && today < new Date(event.endTime);
+    if (!flag) {
+      return NextResponse.json(
+        {
+          message: "You can not get the quiz topics now",
+        },
+        { status: 400 }
+      );
+    }
     const quiz = await Quiz.findOne({ team: teamDetails._id });
-    if (quiz?.quizStarted) {
+    if (quiz && quiz?.quizStarted) {
       return NextResponse.json(
         { message: "Quiz already started" },
         { status: 400 }
@@ -61,11 +86,34 @@ export async function PATCH(request) {
         message: "Team not found",
       });
     }
-    if (teamDetails.members.length != 2) {
+    if (teamDetails.members.length != 2 || !teamDetails.payment) {
       return NextResponse.json({
         success: false,
-        message: "Team not complete",
+        message: "Team is not eligible for the quiz",
       });
+    }
+    const eventDay = await EventDay.findOne({ team: teamDetails._id });
+    if (!eventDay || !eventDay.attendance) {
+      return NextResponse.json(
+        {
+          message: "You are not present in the event",
+        },
+        { status: 403 }
+      );
+    }
+    const event = await EventTimings.findOne({
+      name: "First Round",
+    });
+    const today = new Date();
+    const flag =
+      today >= new Date(event.startTime) && today < new Date(event.endTime);
+    if (!flag) {
+      return NextResponse.json(
+        {
+          message: "You can not choose the quiz topics now",
+        },
+        { status: 400 }
+      );
     }
     const quiz = await Quiz.findOne({ team: teamDetails._id });
     if (quiz) {

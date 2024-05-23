@@ -5,8 +5,10 @@ import { connectToDatabase } from "@utils/db";
 import QuizTitle from "@models/quizTitle";
 import Question from "@models/question";
 import Quiz from "@models/quiz";
+import EventDay from "@models/eventDay";
+import EventTimings from "@models/eventTimings";
 
-//get all questions
+//get all questions according to selected Topics
 export async function GET(req, { params }) {
   try {
     await connectToDatabase();
@@ -22,6 +24,29 @@ export async function GET(req, { params }) {
       });
     }
     const { teamId } = params;
+    const eventDay = await EventDay.findOne({ team: teamId});
+    if (!eventDay || !eventDay.attendance) {
+      return NextResponse.json(
+        {
+          message: "You are not present in the event",
+        },
+        { status: 403 }
+      );
+    }
+    const event = await EventTimings.findOne({
+      name: "First Round",
+    });
+    const today = new Date();
+    const flag =
+      today >= new Date(event.startTime) && today < new Date(event.endTime);
+    if (!flag) {
+      return NextResponse.json(
+        {
+          message: "You can not get the quiz now",
+        },
+        { status: 400 }
+      );
+    }
     const quiz = await Quiz.findOne({ team: teamId });
     if (!quiz?.quizStarted)
       return NextResponse.json(
@@ -73,7 +98,7 @@ export async function GET(req, { params }) {
   }
 }
 
-//quiz started
+//Start the quiz if topics are selected
 export async function POST(request, { params }) {
   try {
     await connectToDatabase();
@@ -91,10 +116,16 @@ export async function POST(request, { params }) {
         message: "Team not found",
       });
     }
-    if (teamDetails.members.length != 2) {
+    if (teamDetails.members.length != 2 || !teamDetails.payment) {
       return NextResponse.json({
         success: false,
-        message: "Team not complete",
+        message: "Team not eligible to attend the quiz",
+      });
+    }
+    if (teamDetails.quizTopics.length !== 3) {
+      return NextResponse.json({
+        success: false,
+        message: "You must select the topics to start the quiz",
       });
     }
     const { teamId } = params;
@@ -104,8 +135,31 @@ export async function POST(request, { params }) {
         message: "Invalid Team Access",
       });
     }
+    const eventDay = await EventDay.findOne({ team: teamId });
+    if (!eventDay || !eventDay.attendance) {
+      return NextResponse.json(
+        {
+          message: "You are not present in the event",
+        },
+        { status: 403 }
+      );
+    }
+    const event = await EventTimings.findOne({
+      name: "First Round",
+    });
+    const today = new Date();
+    const flag =
+      today >= new Date(event.startTime) && today < new Date(event.endTime);
+    if (!flag) {
+      return NextResponse.json(
+        {
+          message: "You can not start the quiz now",
+        },
+        { status: 400 }
+      );
+    }
     const quizC = await Quiz.findOne({ team: teamId });
-    if (quizC?.quizEnded) {
+    if (quizC && quizC?.quizEnded) {
       return NextResponse.json(
         { message: "Quiz already ended" },
         { status: 400 }
@@ -117,6 +171,7 @@ export async function POST(request, { params }) {
     return NextResponse.json({
       success: true,
       message: "Quiz started",
+      startTime: new Date(),
     });
   } catch (error) {
     console.error("Error ", error);

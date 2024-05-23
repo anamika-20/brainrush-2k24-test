@@ -158,7 +158,7 @@ function Navbar() {
               text={"Exit"}
               small={true}
               onClick={() => {
-                signOut("/login");
+                signOut({ callbackUrl: "/login" });
               }}
             />
           )}

@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import User from "@models/user";
 import Team from "@models/team";
 import { connectToDatabase } from "@utils/db";
-import QuizTitle from "@models/quizTitle";
 import Question from "@models/question";
 import Quiz from "@models/quiz";
+import EventDay from "@models/eventDay";
+import EventTimings from "@models/eventTimings";
 
 //get all questions
 export async function GET(req, { params }) {
@@ -21,6 +22,35 @@ export async function GET(req, { params }) {
         message: "Team not found",
       });
     }
+    if (teamDetails.quizTopics.length !== 3) {
+      return NextResponse.json({
+        success: false,
+        message: "Choose Topics first",
+      });
+    }
+    const eventDay = await EventDay.findOne({ team: teamDetails._id });
+    if (!eventDay || !eventDay.attendance) {
+      return NextResponse.json(
+        {
+          message: "You are not present in the event",
+        },
+        { status: 403 }
+      );
+    }
+    const event = await EventTimings.findOne({
+      name: "First Round",
+    });
+    const today = new Date();
+    const flag =
+      today >= new Date(event.startTime) && today < new Date(event.endTime);
+    if (!flag) {
+      return NextResponse.json(
+        {
+          message: "You can not start the quiz now",
+        },
+        { status: 400 }
+      );
+    }
     const { teamId } = params;
     const quiz = await Quiz.findOne({ team: teamId });
     if (!quiz?.quizEnded) {
@@ -34,7 +64,7 @@ export async function GET(req, { params }) {
     //   .exec();
     return NextResponse.json({
       success: true,
-      message: "All Quiz Titles",
+      message: "All Questions",
       questions,
     });
   } catch (error) {
