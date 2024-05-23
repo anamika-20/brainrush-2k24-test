@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 
 const page = () => {
   const diff = new Date() - new Date(localStorage.getItem("startTime"));
-  const time = 120 - Math.floor(diff / 1000);
+  const time = 1800 - Math.floor(diff / 1000);
   const [timeLeft, setTimeLeft] = useState(time); // 30 minutes in seconds
   const widthPercentage = 100 - (timeLeft / time) * 100;
   const [clickedIndex, setClickedIndex] = useState(-1);

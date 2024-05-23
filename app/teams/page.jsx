@@ -379,7 +379,7 @@ const Teams = () => {
                           )
                         : null}
 
-                      {quizState.canStartQuiz && (
+                      {quizState.canStartQuiz && !quizState.quizEnded && (
                         <Button
                           text={
                             quizState.alreadyStarted
