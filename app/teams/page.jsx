@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Preahvihear } from "next/font/google";
 import Button from "@components/Button";
-import Navbar from "@components/Nav/RegNav";
 
 const preahvihear = Preahvihear({
   subsets: ["latin"],
@@ -27,6 +26,7 @@ const Teams = () => {
   const user = useSelector((state) => state.user.user);
   const [teamMemberEmail1, setTeamMemberEmail1] = useState("");
   const [teamMemberEmail2, setTeamMemberEmail2] = useState("");
+  const [quizState, setQuizState] = useState({});
   const handleDelete = async () => {
     try {
       setLoading(true);
@@ -77,21 +77,7 @@ const Teams = () => {
       console.log(error);
     }
   };
-  // const handleLeaveTeam = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const { data } = await axios.put(
-  //       `${process.env.NEXT_PUBLIC_BASE_URL}/api/team/${team?._id}`
-  //     );
-  //     if (data?.success) {
-  //       dispatch(setTeam(null));
-  //       dispatch(setTeamRequest(null));
-  //     }
-  //     setLoading(false);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+
   const handleSendRequest = async (teamMemberEmail) => {
     try {
       setLoading(true);
@@ -119,6 +105,7 @@ const Teams = () => {
       router.push("/teams");
     }
   };
+  const [isImageVisible, setImageVisible] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -126,9 +113,22 @@ const Teams = () => {
       setLoading(false);
     }, 4000);
   }, []);
+  useEffect(() => {
+    const getStartTimings = async () => {
+      if (team?._id) {
+        try {
+          const { data } = await axios.get(`/api/quiz/timings/${team._id}`);
+          console.log(data);
+          setQuizState(data);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    };
+    getStartTimings();
+  }, [team]);
 
   /* SHOW QR STARTS */
-  const [isImageVisible, setImageVisible] = useState(false);
   const handleQr = () => {
     setImageVisible(true);
   };
@@ -153,8 +153,9 @@ const Teams = () => {
     <>
       {
         <div
-          className={`z-50 fixed inset-0 flex justify-center items-center transition-opacity duration-300 ${isImageVisible ? "opacity-100" : "opacity-0 pointer-events-none"
-            } backdrop-blur-md`}
+          className={`z-50 fixed inset-0 flex justify-center items-center transition-opacity duration-300 ${
+            isImageVisible ? "opacity-100" : "opacity-0 pointer-events-none"
+          } backdrop-blur-md`}
         >
           <div className="bg-white p-8 rounded-lg shadow-md w-auto">
             <img
@@ -270,14 +271,14 @@ const Teams = () => {
                           (team?.members?.length === 2
                             ? []
                             : team?.members?.length === 1
-                              ? sentRequestFromTheTeam.length == 0
-                                ? [1]
-                                : []
-                              : sentRequestFromTheTeam.length === 0
-                                ? [1, 2]
-                                : sentRequestFromTheTeam.length === 1
-                                  ? [1]
-                                  : []
+                            ? sentRequestFromTheTeam.length == 0
+                              ? [1]
+                              : []
+                            : sentRequestFromTheTeam.length === 0
+                            ? [1, 2]
+                            : sentRequestFromTheTeam.length === 1
+                            ? [1]
+                            : []
                           ).map((item) => (
                             <form className="space-y-8 mb-3" key={item}>
                               <div className="w-full flex flex-wrap items-center">
@@ -369,12 +370,23 @@ const Teams = () => {
                       {/* delete team */}
                       {!team?.payment
                         ? user?.id === team?.leader?._id && (
-                          <Button
-                            text={"Delete Team"}
-                            onClick={handleDelete}
-                          />
-                        )
+                            <Button
+                              text={"Delete Team"}
+                              onClick={handleDelete}
+                            />
+                          )
                         : null}
+
+                      {quizState.canStartQuiz && (
+                        <Button
+                          text={
+                            quizState.alreadyStarted
+                              ? "Resume Quiz"
+                              : "Start Quiz"
+                          }
+                          onClick={() => router.push(quizState.alreadyStarted?"/quiz/questions":"/quiz")}
+                        />
+                      )}
                     </div>
                   </div>
 
@@ -405,7 +417,7 @@ const Teams = () => {
                       <div className="flex-grow">
                         <h2
                           className="text-white text-4xl title-font font-2xl mb-3"
-                        // style={{ color: "#6f7bd9 !important" }}
+                          // style={{ color: "#6f7bd9 !important" }}
                         >
                           <span className={preahvihear.className}>
                             Join Team
