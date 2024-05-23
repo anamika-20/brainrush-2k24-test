@@ -79,18 +79,23 @@ const page = () => {
     try {
       setLoading(true);
       const { data } = await axios.patch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/quiz/${team?._id}`, { responses }
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/quiz/${team?._id}`,
+        { responses }
       );
       if (data.success) {
-        router.push("/quiz/result")
+        localStorage.removeItem("responses");
+        localStorage.removeItem("startTime");
+        localStorage.removeItem("questions");
+        alert("Quiz has been submitted and responses has been recorded");
+        router.push("/quiz/result");
       } else {
         alert(data?.message);
       }
-      setLoading(false);
     } catch (err) {
       console.log(err);
     }
-  }
+    setLoading(false);
+  };
   const handlePrev = () => {
     setClickedIndex(-1);
     if (currentQuestion > 1) {

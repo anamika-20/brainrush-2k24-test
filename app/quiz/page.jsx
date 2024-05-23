@@ -19,6 +19,7 @@ const page = () => {
     try {
       setLoading(true);
       if (team?.quizTopics.length === 3) {
+        console.log("here");
         const { data: quizData } = await axios.post(
           `${process.env.NEXT_PUBLIC_BASE_URL}/api/quiz/${team?._id}`
         );
@@ -58,10 +59,10 @@ const page = () => {
   };
   useEffect(() => {
     getAllQuizzes();
-    const startTime = localStorage.getItem("startTime");
-    if (startTime) {
-      router.push("/quiz/questions");
-    }
+    // const startTime = localStorage.getItem("startTime");
+    // if (startTime) {
+    //   router.push("/quiz/questions");
+    // }
   }, []);
 
   const handleSubmit = async () => {

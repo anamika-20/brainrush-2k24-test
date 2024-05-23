@@ -121,22 +121,6 @@ const Teams = () => {
           const { data } = await axios.get(`/api/quiz/timings/${team._id}`);
           console.log(data);
           setQuizState(data);
-          if (quizState.alreadyStarted) {
-            if (!localStorage.getItem("startTime")) {
-              console.log("here");
-              // localStorage.setItem("startTime", data.startTime);
-              // const { data: quizData } = await axios.get(
-              //   `/api/quiz/solution/${team._id}`
-              // );
-              // if (quizData.success) {
-              //   localStorage.setItem(
-              //     "questions",
-              //     JSON.stringify(quizData.questions)
-              //   );
-              //   localStorage.setItem("responses", JSON.stringify([]));
-              // }
-            }
-          }
         } catch (error) {
           console.log(error);
         }
@@ -404,7 +388,9 @@ const Teams = () => {
                           }
                           onClick={() =>
                             router.push(
-                              quizState.alreadyStarted
+                              localStorage.getItem("startTime") &&
+                                localStorage.getItem("questions") &&
+                                localStorage.getItem("responses")
                                 ? "/quiz/questions"
                                 : "/quiz"
                             )

@@ -165,6 +165,13 @@ export async function POST(request, { params }) {
         { status: 400 }
       );
     }
+    if (quizC && !quizC?.quizEnded) {
+      return NextResponse.json({
+        success: true,
+        message: "Quiz Resumed successfully",
+        startTime: quizC.createdAt,
+      });
+    }
     const quiz = new Quiz({ quizStarted: true, team: teamId });
     await quiz.save();
 
