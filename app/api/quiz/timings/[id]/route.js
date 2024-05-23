@@ -63,18 +63,20 @@ export async function GET(req, { params }) {
         return NextResponse.json({
           canStartQuiz: true,
           alreadyStarted: false,
+          quizEnded: false,
         });
       } else {
         return NextResponse.json({
           canStartQuiz: true,
           alreadyStarted: quiz.quizStarted,
-          startTime: quiz.createdAt,
+          quizEnded: quiz.quizEnded,
         });
       }
     } else {
       return NextResponse.json({
         canStartQuiz: false,
         alreadyStarted: false,
+        quizEnded: true,
       });
     }
   } catch (error) {
