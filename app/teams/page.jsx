@@ -115,15 +115,32 @@ const Teams = () => {
   }, []);
   useEffect(() => {
     const getStartTimings = async () => {
+      setLoading(true);
       if (team?._id) {
         try {
           const { data } = await axios.get(`/api/quiz/timings/${team._id}`);
           console.log(data);
           setQuizState(data);
+          if (quizState.alreadyStarted) {
+            if (!localStorage.getItem("startTime") === undefined) {
+              localStorage.setItem("startTime", data.startTime);
+              const { data: quizData } = await axios.get(
+                `/api/quiz/solution/${team._id}`
+              );
+              if (quizData.success) {
+                localStorage.setItem(
+                  "questions",
+                  JSON.stringify(quizData.questions)
+                );
+                localStorage.setItem("responses", JSON.stringify([]));
+              }
+            }
+          }
         } catch (error) {
           console.log(error);
         }
       }
+      setLoading(false);
     };
     getStartTimings();
   }, [team]);
@@ -384,7 +401,13 @@ const Teams = () => {
                               ? "Resume Quiz"
                               : "Start Quiz"
                           }
-                          onClick={() => router.push(quizState.alreadyStarted?"/quiz/questions":"/quiz")}
+                          onClick={() =>
+                            router.push(
+                              quizState.alreadyStarted
+                                ? "/quiz/questions"
+                                : "/quiz"
+                            )
+                          }
                         />
                       )}
                     </div>

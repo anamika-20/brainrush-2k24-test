@@ -18,14 +18,38 @@ const page = () => {
   const getAllQuizzes = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/quiz`
-      );
-      console.log(data);
-      if (data.success) {
-        setOptions(data.quizzes);
+      if (team?.quizTopics.length === 3) {
+        const { data: quizData } = await axios.post(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/quiz/${team?._id}`
+        );
+        if (quizData.success) {
+          localStorage.setItem("startTime", quizData.startTime);
+          const { data: questionData } = await axios.get(
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/quiz/${team?._id}`
+          );
+          if (questionData.success) {
+            localStorage.setItem(
+              "questions",
+              JSON.stringify(questionData.questions)
+            );
+            localStorage.setItem("responses", JSON.stringify([]));
+
+            console.log(questionData.questions);
+          } else {
+            alert(data?.message);
+          }
+          router.push("quiz/questions");
+        }
       } else {
-        alert(data?.message);
+        const { data } = await axios.get(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/quiz`
+        );
+        console.log(data);
+        if (data.success) {
+          setOptions(data.quizzes);
+        } else {
+          alert(data?.message);
+        }
       }
       setLoading(false);
     } catch (err) {
@@ -105,99 +129,99 @@ const page = () => {
     );
   };
 
-  return (
-    loading ? <Loader /> : (
-      <div className="flex flex-col mx-5 items-center justify-center ">
-        <div
-          className="max-w-md w-full p-6 bg-white rounded-lg"
-          style={{ width: "90%", height: "700px" }}
-        >
-          <div className="flex justify-between items-center mb-2">
-            <h1 className="text-3xl text-background font-bold">Round-1</h1>
-          </div>
-          <div>
-            <div className="mb-6 h-px w-full bg-bgGray ">
-              <div
-                className="h-px bg-background "
-                style={{ width: "100%" }}
-              ></div>
-            </div>
-
-            <h3 className="text-left text-background font-bold">
-              CHOOSE TOPIC 1
-            </h3>
-            <div
-              className="border-2 border-background rounded-md"
-              style={{ padding: "9px", margin: "5px 0" }}
-            >
-              <select
-                className="w-full py-3 bg-white-600 px-3 focus:outline-none font-bold rounded-md"
-                name="topic1"
-                value={selectedTopics.topic1}
-                onChange={(e) => handleSelectChange(e, "topic1")}
-              >
-                <option value="">Select Topic 1</option>
-                {filterOptions([selectedTopics.topic1]).map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <h3 className="text-left text-background font-bold">
-              CHOOSE TOPIC 2
-            </h3>
-            <div
-              className="border-2 border-background rounded-md"
-              style={{ padding: "9px", margin: "5px 0" }}
-            >
-              <select
-                className="w-full py-3 bg-white-600 px-3 focus:outline-none font-bold rounded-md"
-                name="topic2"
-                value={selectedTopics.topic2}
-                onChange={(e) => handleSelectChange(e, "topic2")}
-              >
-                <option value="">Select Topic 2</option>
-                {filterOptions([selectedTopics.topic2]).map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <h3 className="text-left  text-background font-bold">
-              CHOOSE TOPIC 3
-            </h3>
-            <div
-              className="border-2 border-background rounded-md"
-              style={{ padding: "9px", margin: "5px 0" }}
-            >
-              <select
-                className="w-full py-3 bg-white-600 px-3 focus:outline-none font-bold rounded-md"
-                name="topic3"
-                value={selectedTopics.topic3}
-                onChange={(e) => handleSelectChange(e, "topic3")}
-              >
-                <option value="">Select Topic 3</option>
-                {filterOptions([selectedTopics.topic3]).map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <button
-            className="mt-15 flex items-center justify-center border border-background bg-background text-white py-2 px-4 rounded-md w-full mt-4"
-            onClick={handleSubmit}
-          >
-            SUBMIT
-          </button>
+  return loading ? (
+    <Loader />
+  ) : (
+    <div className="flex flex-col mx-5 items-center justify-center ">
+      <div
+        className="max-w-md w-full p-6 bg-white rounded-lg"
+        style={{ width: "90%", height: "700px" }}
+      >
+        <div className="flex justify-between items-center mb-2">
+          <h1 className="text-3xl text-background font-bold">Round-1</h1>
         </div>
+        <div>
+          <div className="mb-6 h-px w-full bg-bgGray ">
+            <div
+              className="h-px bg-background "
+              style={{ width: "100%" }}
+            ></div>
+          </div>
+
+          <h3 className="text-left text-background font-bold">
+            CHOOSE TOPIC 1
+          </h3>
+          <div
+            className="border-2 border-background rounded-md"
+            style={{ padding: "9px", margin: "5px 0" }}
+          >
+            <select
+              className="w-full py-3 bg-white-600 px-3 focus:outline-none font-bold rounded-md"
+              name="topic1"
+              value={selectedTopics.topic1}
+              onChange={(e) => handleSelectChange(e, "topic1")}
+            >
+              <option value="">Select Topic 1</option>
+              {filterOptions([selectedTopics.topic1]).map((option) => (
+                <option key={option._id} value={option._id}>
+                  {option.title}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <h3 className="text-left text-background font-bold">
+            CHOOSE TOPIC 2
+          </h3>
+          <div
+            className="border-2 border-background rounded-md"
+            style={{ padding: "9px", margin: "5px 0" }}
+          >
+            <select
+              className="w-full py-3 bg-white-600 px-3 focus:outline-none font-bold rounded-md"
+              name="topic2"
+              value={selectedTopics.topic2}
+              onChange={(e) => handleSelectChange(e, "topic2")}
+            >
+              <option value="">Select Topic 2</option>
+              {filterOptions([selectedTopics.topic2]).map((option) => (
+                <option key={option._id} value={option._id}>
+                  {option.title}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <h3 className="text-left  text-background font-bold">
+            CHOOSE TOPIC 3
+          </h3>
+          <div
+            className="border-2 border-background rounded-md"
+            style={{ padding: "9px", margin: "5px 0" }}
+          >
+            <select
+              className="w-full py-3 bg-white-600 px-3 focus:outline-none font-bold rounded-md"
+              name="topic3"
+              value={selectedTopics.topic3}
+              onChange={(e) => handleSelectChange(e, "topic3")}
+            >
+              <option value="">Select Topic 3</option>
+              {filterOptions([selectedTopics.topic3]).map((option) => (
+                <option key={option._id} value={option._id}>
+                  {option.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <button
+          className="mt-15 flex items-center justify-center border border-background bg-background text-white py-2 px-4 rounded-md w-full mt-4"
+          onClick={handleSubmit}
+        >
+          SUBMIT
+        </button>
       </div>
-    )
+    </div>
   );
 };
 

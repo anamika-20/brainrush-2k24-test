@@ -53,8 +53,11 @@ export async function GET(req, { params }) {
     }
     const { teamId } = params;
     const quiz = await Quiz.findOne({ team: teamId });
-    if (!quiz?.quizEnded) {
-      return NextResponse.json({ message: "Quiz not ended" }, { status: 400 });
+    if (quiz?.quizEnded) {
+      return NextResponse.json(
+        { message: "Quiz already ended" },
+        { status: 400 }
+      );
     }
     // Fetch the questions for the given quiz IDs
     const questions = await Question.find({
