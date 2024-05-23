@@ -115,6 +115,7 @@ const Teams = () => {
   }, []);
   useEffect(() => {
     const getStartTimings = async () => {
+      setLoading(true);
       if (team?._id) {
         try {
           const { data } = await axios.get(`/api/quiz/timings/${team._id}`);
@@ -124,6 +125,7 @@ const Teams = () => {
           console.log(error);
         }
       }
+      setLoading(false);
     };
     getStartTimings();
   }, [team]);
@@ -384,7 +386,15 @@ const Teams = () => {
                               ? "Resume Quiz"
                               : "Start Quiz"
                           }
-                          onClick={() => router.push(quizState.alreadyStarted?"/quiz/questions":"/quiz")}
+                          onClick={() =>
+                            router.push(
+                              localStorage.getItem("startTime") &&
+                                localStorage.getItem("questions") &&
+                                localStorage.getItem("responses")
+                                ? "/quiz/questions"
+                                : "/quiz"
+                            )
+                          }
                         />
                       )}
                     </div>

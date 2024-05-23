@@ -68,6 +68,7 @@ export async function GET(req, { params }) {
         return NextResponse.json({
           canStartQuiz: true,
           alreadyStarted: quiz.quizStarted,
+          startTime: quiz.createdAt,
         });
       }
     } else {
