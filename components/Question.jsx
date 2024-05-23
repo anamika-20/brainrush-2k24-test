@@ -14,7 +14,7 @@ const Question = ({
   const [response, setResponse] = useState(-1);
   useEffect(() => {
     const index = responses.findIndex(
-      (response) => response.qid === question._id
+      (response) => response.question === question._id
     );
     if (index !== -1) {
       setResponse(responses[index].answer);
@@ -42,11 +42,10 @@ const Question = ({
             key={index}
             onClick={() => handleClick(question._id, option.text, index)} //add in responses
             className={`flex items-center justify-between border py-2 px-4 rounded-md w-full focus:outline-none 
-          ${
-            clickedIndex === index || response === option.text
-              ? "border-background text-background"
-              : "border-gray-300 text-gray-800"
-          }
+          ${clickedIndex === index || response === option.text
+                ? "border-background text-background"
+                : "border-gray-300 text-gray-800"
+              }
          `}
           >
             {option.text}

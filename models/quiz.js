@@ -14,6 +14,9 @@ const quizSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    quizEndTime: {
+      type: Date,
+    },
     responses: [
       {
         question: {
@@ -26,25 +29,8 @@ const quizSchema = new Schema(
         },
       },
     ],
-    // startTime: {
-    //   type: Date,
-    //   default: Date.now,
-    // },
   },
   { timestamps: true }
 );
 const Quiz = (models && models.Quiz) || model("Quiz", quizSchema);
 export default Quiz;
-/**
- *
- *
- *
- */
-/**
- * post quiz topics in Teams
- * get questions based on topics from Quiz (admin)
- * post save solution
- * get Results/Summary per team
- * get Leaderboard all teams
- *
- */

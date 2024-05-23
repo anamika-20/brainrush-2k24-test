@@ -1,6 +1,8 @@
 "use client";
 import Loader from "@components/Loader/UniversalLoader";
 import Question from "@components/Question";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -14,6 +16,7 @@ const page = () => {
   const [questions, setQuestions] = useState(
     JSON.parse(localStorage.getItem("questions"))
   );
+  const router = useRouter();
   const team = useSelector((state) => state.team.team);
   const [loading, setLoading] = useState(false);
   const [responses, setResponses] = useState(
@@ -23,6 +26,7 @@ const page = () => {
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
+          onSave();
           clearInterval(timer);
           return 0;
         }
@@ -70,14 +74,23 @@ const page = () => {
       localStorage.setItem("responses", JSON.stringify(responses));
     }
   };
-  const onSave = () => {
+  const onSave = async () => {
     localStorage.setItem("responses", JSON.stringify(responses));
     try {
-      //api call for submitting
-    } catch (error) {
-      console.log(error);
+      setLoading(true);
+      const { data } = await axios.patch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/quiz/${team?._id}`, { responses }
+      );
+      if (data.success) {
+        router.push("/quiz/result")
+      } else {
+        alert(data?.message);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
     }
-  };
+  }
   const handlePrev = () => {
     setClickedIndex(-1);
     if (currentQuestion > 1) {
@@ -89,13 +102,13 @@ const page = () => {
   const handleClick = (qid, ans, index) => {
     var temp = [...responses];
     const existingResponseIndex = temp.findIndex(
-      (response) => response.qid === qid
+      (response) => response.question === qid
     );
 
     if (existingResponseIndex !== -1) {
       temp[existingResponseIndex].answer = ans;
     } else {
-      temp.push({ qid, answer: ans });
+      temp.push({ question: qid, answer: ans });
     }
     console.log(temp);
     setResponses(temp);

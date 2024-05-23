@@ -1,9 +1,9 @@
 import { Schema, model, models } from "mongoose";
 
 const resultsSchema = new Schema({
-  team: {
+  quiz: {
     type: Schema.Types.ObjectId,
-    ref: "Team",
+    ref: "Quiz",
   },
   score: {
     type: Number,

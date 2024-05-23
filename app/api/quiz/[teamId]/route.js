@@ -24,7 +24,7 @@ export async function GET(req, { params }) {
       });
     }
     const { teamId } = params;
-    const eventDay = await EventDay.findOne({ team: teamId});
+    const eventDay = await EventDay.findOne({ team: teamId });
     if (!eventDay || !eventDay.attendance) {
       return NextResponse.json(
         {
@@ -228,6 +228,7 @@ export async function PATCH(request, { params }) {
     const quiz = await Quiz.findOne({ team: teamId });
     quiz.responses = responses;
     quiz.quizEnded = true;
+    quiz.quizEndTime = new Date();
 
     // Count correct answers
     let correctCount = 0;
@@ -238,6 +239,7 @@ export async function PATCH(request, { params }) {
         correctCount++;
       }
     }
+    console.log(correctCount);
     await quiz.save();
 
     return NextResponse.json({

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import Loader from "@components/Loader/UniversalLoader";
 
 const page = () => {
   const [loading, setLoading] = useState(false);
@@ -105,7 +106,7 @@ const page = () => {
   };
 
   return (
-    !loading && (
+    loading ? <Loader /> : (
       <div className="flex flex-col mx-5 items-center justify-center ">
         <div
           className="max-w-md w-full p-6 bg-white rounded-lg"

@@ -75,3 +75,24 @@ export async function GET(req, { params }) {
     );
   }
 }
+
+/**
+ * responses --> when submit --> save in teams;
+ * quiz --> quizEnded = true;
+ * {
+  "responses": [
+    {
+      "question": "664b9a22fb551704023306d9",
+      "answer": "22"
+    },
+    {
+      "question": "664b9a66fb551704023306e1",
+      "answer": "answer 2"
+    },
+    {
+      "question": "664b9a6cfb551704023306e9",
+      "answer": "answer 69"
+    }
+  ]
+}
+*/
