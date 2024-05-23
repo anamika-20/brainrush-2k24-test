@@ -238,15 +238,7 @@ export async function PATCH(request, { params }) {
     quiz.quizEndTime = new Date();
 
     // Count correct answers
-    let correctCount = 0;
-    for (const response of quiz.responses) {
-      const question = await Question.findById(response.question._id);
-      const correctOption = question.options.find((option) => option.isCorrect);
-      if (correctOption && correctOption.text === response.answer) {
-        correctCount++;
-      }
-    }
-    console.log(correctCount);
+
     await quiz.save();
 
     return NextResponse.json({
