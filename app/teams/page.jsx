@@ -122,18 +122,19 @@ const Teams = () => {
           console.log(data);
           setQuizState(data);
           if (quizState.alreadyStarted) {
-            if (!localStorage.getItem("startTime") === undefined) {
-              localStorage.setItem("startTime", data.startTime);
-              const { data: quizData } = await axios.get(
-                `/api/quiz/solution/${team._id}`
-              );
-              if (quizData.success) {
-                localStorage.setItem(
-                  "questions",
-                  JSON.stringify(quizData.questions)
-                );
-                localStorage.setItem("responses", JSON.stringify([]));
-              }
+            if (!localStorage.getItem("startTime")) {
+              console.log("here");
+              // localStorage.setItem("startTime", data.startTime);
+              // const { data: quizData } = await axios.get(
+              //   `/api/quiz/solution/${team._id}`
+              // );
+              // if (quizData.success) {
+              //   localStorage.setItem(
+              //     "questions",
+              //     JSON.stringify(quizData.questions)
+              //   );
+              //   localStorage.setItem("responses", JSON.stringify([]));
+              // }
             }
           }
         } catch (error) {
