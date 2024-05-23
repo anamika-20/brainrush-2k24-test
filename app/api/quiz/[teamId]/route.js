@@ -213,7 +213,7 @@ export async function PATCH(request, { params }) {
       });
     }
     const { teamId } = params;
-    if (teamId !== teamDetails._id.toHexString()) {
+    if (teamId !== String(teamDetails._id)) {
       return NextResponse.json({
         success: false,
         message: "Invalid Team Access",
